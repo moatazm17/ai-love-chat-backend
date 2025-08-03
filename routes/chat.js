@@ -55,6 +55,7 @@ router.post('/', chatLimiter, async (req, res) => {
     // Check if OpenAI is configured
     if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-your-key-here') {
       try {
+        console.log('🤖 Attempting OpenAI API call...');
 
         // Enhanced personality prompts with better contextual response instructions
         const personalityPrompts = {
@@ -134,11 +135,14 @@ GOAL: Make them CRAVE your next message. Be irresistible. Make them think about 
           top_p: 0.9 // Focused but creative sampling
         });
         aiText = completion.choices[0].message.content.trim();
-        console.log('✅ OpenAI response generated');
+        console.log('✅ OpenAI response generated:', aiText.substring(0, 50) + '...');
       } catch (err) {
-        console.error('OpenAI error:', err.message);
+        console.error('❌ OpenAI error:', err.message);
+        console.error('Full OpenAI error:', err);
         aiText = null; // fallback to smart responses
       }
+    } else {
+      console.log('⚠️ OpenAI API key not configured, using fallback responses');
     }
     
     // Fallback to smart responses if no OpenAI
