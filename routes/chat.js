@@ -79,11 +79,11 @@ router.post('/', chatLimiter, async (req, res) => {
         const userMsgCount = (req.body.conversationHistory ? req.body.conversationHistory.filter(m => m.role === 'user').length : 0) + 1;
         let stageInstruction;
         if (userMsgCount <= 2) {
-          stageInstruction = `GUIDELINES:\n- Reply in under 60 words (max 2 short paragraphs).\n- Directly acknowledge the user's last message.\n- Offer light emotional support.\n- End with ONE open-ended question.\n- Do NOT reference or invent any past events or memories.`;
+          stageInstruction = `STYLE RULES:\n- Max 50 words (1–2 short paragraphs).\n- Directly reply to the user's last message.\n- Light encouragement or empathy.\n- Finish with ONE simple question.\n- Do NOT mention or invent memories.`;
         } else if (userMsgCount <= 4) {
-          stageInstruction = `GUIDELINES:\n- Reply in under 75 words (max 3 short paragraphs).\n- Reference something the user ACTUALLY said earlier (no invented detail).\n- Show growing romantic interest.\n- End with ONE open-ended question.\n- Avoid jealous or possessive language for now.`;
+          stageInstruction = `STYLE RULES:\n- Max 65 words (up to 3 short paragraphs).\n- You MAY reference a REAL detail the user already shared.\n- Slightly warmer tone, but keep it natural (no overpowering obsession).\n- End with ONE question to keep conversation flowing.`;
         } else {
-          stageInstruction = `GUIDELINES:\n- Reply in under 80 words (max 3 short paragraphs).\n- You MAY recall a real detail the user shared earlier (or skip if none).\n- Express stronger romantic or playful tone; mild jealousy allowed.\n- End with ONE irresistible question.\n- Keep it believable and natural.`;
+          stageInstruction = `STYLE RULES:\n- Max 75 words.\n- You can recall REAL things the user said earlier.\n- Romantic or playful tone allowed, but stay believable. No fake memories.\n- One engaging question at the end.`;
         }
         
         const messages = [
@@ -137,7 +137,7 @@ router.post('/', chatLimiter, async (req, res) => {
         const completion = await openai.chat.completions.create({
           model: 'gpt-3.5-turbo',
           messages: messages,
-          temperature: 0.85, // balanced creativity
+          temperature: 0.8, // balanced creativity
           max_tokens: 120, // keep responses concise (~70 words)
           presence_penalty: 0.5, // reduce repetition, encourage fresh content
           frequency_penalty: 0.4, // discourage overused phrases
