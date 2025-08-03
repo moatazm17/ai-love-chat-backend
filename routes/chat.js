@@ -598,4 +598,48 @@ router.get('/starters/:personality', async (req, res) => {
   }
 });
 
+// 🚨 Report content
+router.post('/report', async (req, res) => {
+  try {
+    const { personality, reason, customText, timestamp, conversationId } = req.body;
+    
+    // Validate required fields
+    if (!personality || !reason) {
+      return res.status(400).json({
+        success: false,
+        error: 'missing_fields',
+        message: 'Personality and reason are required'
+      });
+    }
+    
+    // Log the report for monitoring
+    console.log('🚨 Content Report Received:', {
+      personality,
+      reason,
+      customText: customText || 'N/A',
+      timestamp: timestamp || new Date().toISOString(),
+      conversationId: conversationId || 'unknown',
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
+    // Here you could save to database, send email, or integrate with moderation service
+    // For now, we'll just log it and return success
+    
+    res.json({
+      success: true,
+      message: 'Report submitted successfully',
+      reportId: `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    });
+    
+  } catch (error) {
+    console.error('❌ Report submission error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'server_error',
+      message: 'Failed to submit report'
+    });
+  }
+});
+
 module.exports = router;
