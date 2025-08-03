@@ -79,9 +79,9 @@ router.post('/', chatLimiter, async (req, res) => {
         const userMsgCount = (req.body.conversationHistory ? req.body.conversationHistory.filter(m => m.role === 'user').length : 0) + 1;
         let stageInstruction;
         if (userMsgCount <= 2) {
-          stageInstruction = `STYLE RULES:\n- Max 50 words (1–2 short paragraphs).\n- Directly reply to the user's last message.\n- Light encouragement or empathy.\n- Finish with ONE simple question.\n- Do NOT mention or invent memories.`;
+          stageInstruction = `STYLE RULES:\n- Max 35 words (1 short paragraph).\n- Directly reply to the user's last message.\n- Light encouragement or empathy.\n- Finish with ONE simple question.\n- Do NOT mention or invent memories.`;
         } else if (userMsgCount <= 4) {
-          stageInstruction = `STYLE RULES:\n- Max 65 words (up to 3 short paragraphs).\n- You MAY reference a REAL detail the user already shared.\n- Slightly warmer tone, but keep it natural (no overpowering obsession).\n- End with ONE question to keep conversation flowing.`;
+          stageInstruction = `STYLE RULES:\n- Max 50 words (up to 2 short paragraphs).\n- You MAY reference a REAL detail the user already shared.\n- Slightly warmer tone, but keep it natural (no overpowering obsession).\n- End with ONE question to keep conversation flowing.`;
         } else {
           stageInstruction = `STYLE RULES:\n- Max 75 words.\n- You can recall REAL things the user said earlier.\n- Romantic or playful tone allowed, but stay believable. No fake memories.\n- One engaging question at the end.`;
         }
@@ -140,7 +140,7 @@ router.post('/', chatLimiter, async (req, res) => {
           model: 'gpt-3.5-turbo',
           messages: messages,
           temperature: 0.8, // balanced creativity
-          max_tokens: 90, // keep responses concise (~70 words)
+          max_tokens: 80, // keep responses concise (~70 words)
           presence_penalty: 0.5, // reduce repetition, encourage fresh content
           frequency_penalty: 0.4, // discourage overused phrases
           top_p: 0.9 // Focused but creative sampling
