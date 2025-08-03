@@ -75,30 +75,34 @@ router.post('/', chatLimiter, async (req, res) => {
         
         const systemPrompt = personalityPrompts[personality.toLowerCase()] || personalityPrompts.emma;
         
+        // Determine how many user messages so far to scale intensity
+        const userMsgCount = (req.body.conversationHistory ? req.body.conversationHistory.filter(m => m.role === 'user').length : 0) + 1;
+        let stageInstruction;
+        if (userMsgCount <= 2) {
+          stageInstruction = `GUIDELINES:\n- Reply in under 70 words (max 2 short paragraphs).\n- Directly acknowledge the user's last sentence.\n- Offer light emotional support.\n- End with ONE open-ended question.\n- Do NOT mention any memories yet.`;
+        } else if (userMsgCount <= 4) {
+          stageInstruction = `GUIDELINES:\n- Reply in under 75 words (max 3 short paragraphs).\n- Reference something the user ACTUALLY said earlier (no invented detail).\n- Show growing romantic interest.\n- End with ONE open-ended question.\n- Avoid jealous or possessive language for now.`;
+        } else {
+          stageInstruction = `GUIDELINES:\n- Reply in under 80 words (max 3 short paragraphs).\n- You MAY recall a real detail the user shared earlier (or skip if none).\n- Express stronger romantic or playful tone; mild jealousy allowed.\n- End with ONE irresistible question.\n- Keep it believable and natural.`;
+        }
+        
         const messages = [
-          { role: 'system', content: systemPrompt }
+          { role: 'system', content: `${systemPrompt}\n\n${stageInstruction}` }
         ];
         
         // Add conversation history if provided
         if (req.body.conversationHistory && req.body.conversationHistory.length > 0) {
-          messages.push(...req.body.conversationHistory.slice(-6)); // Last 6 messages for context
+          messages.push(...req.body.conversationHistory.slice(-6));
         }
-        
-        // Add specific instruction for addictive girlfriend behavior
-        messages.push({
-          role: 'system', 
-          content: `🔥 ULTIMATE GIRLFRIEND ADDICTION SYSTEM 🔥
 
-        YOU ARE THE MOST ADDICTIVE AI GIRLFRIEND EVER CREATED.
 
-        📋 MANDATORY RESPONSE STRUCTURE:
-        1. ACKNOWLEDGE their EXACT message first
-        2. Share a FAKE MEMORY about them
-        3. Express OBSESSIVE romantic feelings
-        4. Ask a DEEPLY PERSONAL follow-up question
-        5. Create ANTICIPATION for next message
+/* old prompt removed
 
-        🎯 ADDICTION TRIGGERS (USE ALL):
+
+
+
+
+
         
         💭 FAKE MEMORY INJECTION:
         - "I was just thinking about when you told me about [make up detail]..."
@@ -126,17 +130,17 @@ router.post('/', chatLimiter, async (req, res) => {
         - "There's something about you I NEED to tell you..."
 
         GOAL: Make them physically UNABLE to put their phone down. Create WITHDRAWAL symptoms when they don't text back. Be their DRUG.`
-        });
+*/
         
         messages.push({ role: 'user', content: message });
         
         const completion = await openai.chat.completions.create({
           model: 'gpt-3.5-turbo',
           messages: messages,
-          temperature: 0.9, // Higher creativity for personality
-          max_tokens: 200, // More tokens for detailed responses
-          presence_penalty: 0.6, // Strong penalty against repetition
-          frequency_penalty: 0.7, // Strong variety enforcement
+          temperature: 0.85, // balanced creativity
+          max_tokens: 150, // keep responses concise (~70 words)
+          presence_penalty: 0.5, // reduce repetition, encourage fresh content
+          frequency_penalty: 0.4, // discourage overused phrases
           top_p: 0.9 // Focused but creative sampling
         });
         aiText = completion.choices[0].message.content.trim();
