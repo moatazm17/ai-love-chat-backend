@@ -79,7 +79,7 @@ router.post('/', chatLimiter, async (req, res) => {
         const userMsgCount = (req.body.conversationHistory ? req.body.conversationHistory.filter(m => m.role === 'user').length : 0) + 1;
         let stageInstruction;
         if (userMsgCount <= 2) {
-          stageInstruction = `GUIDELINES:\n- Reply in under 70 words (max 2 short paragraphs).\n- Directly acknowledge the user's last sentence.\n- Offer light emotional support.\n- End with ONE open-ended question.\n- Do NOT mention any memories yet.`;
+          stageInstruction = `GUIDELINES:\n- Reply in under 60 words (max 2 short paragraphs).\n- Directly acknowledge the user's last message.\n- Offer light emotional support.\n- End with ONE open-ended question.\n- Do NOT reference or invent any past events or memories.`;
         } else if (userMsgCount <= 4) {
           stageInstruction = `GUIDELINES:\n- Reply in under 75 words (max 3 short paragraphs).\n- Reference something the user ACTUALLY said earlier (no invented detail).\n- Show growing romantic interest.\n- End with ONE open-ended question.\n- Avoid jealous or possessive language for now.`;
         } else {
@@ -138,7 +138,7 @@ router.post('/', chatLimiter, async (req, res) => {
           model: 'gpt-3.5-turbo',
           messages: messages,
           temperature: 0.85, // balanced creativity
-          max_tokens: 150, // keep responses concise (~70 words)
+          max_tokens: 120, // keep responses concise (~70 words)
           presence_penalty: 0.5, // reduce repetition, encourage fresh content
           frequency_penalty: 0.4, // discourage overused phrases
           top_p: 0.9 // Focused but creative sampling
